@@ -20,7 +20,12 @@ class Request:
 		pickle.dump(data, self.sd)
 
 	def recvdata(self):
-		return pickle.load(self.sd)
+		try:
+			return pickle.load(self.sd)
+		except KeyError:
+			return None
+		except IndexError:
+			return None
 
 	def __debug(self, msg):
 		if self.debug:

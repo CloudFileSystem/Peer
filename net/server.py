@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import socket
+import inspect
 import threading
 
 from request import Request
@@ -12,6 +13,7 @@ class Server:
 		self.host = host
 		self.debug = debug
 		self.shutdown = False
+		self.callback = dict()
 
 	def __getServerSocket(self, port, backlog=10):
 		"""
@@ -67,8 +69,20 @@ class Server:
 		self.__debug('Connected ' + str(client_sock.getpeername()))
 
 		sd = Request(sock=client_sock, debug=self.debug)
-		sd.senddata('Hello world!!')
-		#client_sock.close()	
+		try:
+			while not self.shutdown:
+				message = sd.recvdata()
+				if self.callback.has_key(message.__class__.__name__):
+					self.callback[message.__class__.__name__]()
+		except EOFError:
+			self.__debug('EOFError...')
+		client_sock.close()
+
+	def addCallback(self, message):
+		def new(method):
+			if not self.callback.has_key(method):
+				self.callback[message.__name__] = method
+		return new	
 
 	def __debug(self, msg):
 		if self.debug:
