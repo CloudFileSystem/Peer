@@ -10,6 +10,7 @@ MAX_DATA_SIZE=1500
 class TCPClient(object):
 	def __init__(self, host, port=DEFAULT_TCPSERVER_PORT):
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 #sock.settimeout(self.timeout)
 
 		try:
